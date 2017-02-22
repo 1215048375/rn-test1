@@ -8,16 +8,8 @@ class App extends Component {
         super(props)
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            dataSource: ds.cloneWithRows([
-                {
-                    data: {title: "1"}
-                },
-                {
-                    data: {title: "2"}
-                },
-            ]),
+            dataSource: ds
         };
-
         // this.onPressEvent = this.onPressEvent.bind(this);
     }
 
@@ -60,38 +52,60 @@ class App extends Component {
 
     render() {
         const { currentChannel } = this.props;
+        let i = 0;
+        let channelArray = ['reactjs', 'javascript', 'php', 'python'];
         return (
             <View>
-                <View style={{flexDirection: 'row'}}>
-                    <View style={{flex:0.5}}>
-                        <Button
-                            onPress={() => this.onPressEvent('reactjs')}
-                            title="reactjs"
-                            color="#841584"
-                            accessibilityLabel="learn more about reactjs"
-                        />
-                    </View>
-                    <View style={{flex:0.5}}>
-                        <Button
-                            onPress={() => this.onPressEvent('php')}
-                            title="PHP"
-                            color="green"
-                            accessibilityLabel="learn more about reactjs"
-                        />
-                    </View>
+                <View style={styles.buttonView}>
+                    {
+                        channelArray.map(
+                            _channel => (
+                                <View key={_channel} style={{flex: 1 / channelArray.length}}>
+                                    <Button
+                                        onPress={() => this.onPressEvent(_channel)}
+                                        title={_channel}
+                                        color={i++ % 2 === 0 ? styles.button.color : styles.button2.color}
+                                    />
+                                </View>)
+                        )
+                    }
                 </View>
                 <View>
-                    <Text style={{fontSize:40}}>{currentChannel}</Text>
+                    <Text style={styles.channelTitle}>{currentChannel}</Text>
                 </View>
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={(rowData) => <Text>{rowData.data['title']}</Text>}
+                    renderRow={(rowData) => {
+                        if (typeof rowData.data === 'undefined') {
+                            return '';
+                        }
+                        return (
+                            <Text>{rowData.data['title']}</Text>
+                        );
+                    }}
                     enableEmptySections={true}
                 />
             </View>
         );
     }
 }
+
+const styles = {
+    buttonView: {
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    button: {
+        // flex: 0.5
+        color: 'rgb(193, 235, 78)'
+    },
+    button2: {
+        color: 'blue'
+    },
+    channelTitle: {
+        fontSize: 30
+    }
+};
 
 App.propTypes = {
     onPressEvent: PropTypes.func,
@@ -110,13 +124,5 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps =  undefined;
-//     (dispatch) => {
-//     console.log('mapDipatchToProps')
-//     return {
-//         onPressEvent: function(channel) {
-//             dispatch(actions.selectChannel(channel));
-//         }
-//     }
-// }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
