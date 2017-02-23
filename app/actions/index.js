@@ -22,9 +22,9 @@ export function fetching() {
 }
 
 export function receivedPosts(channle, receivedData) {
-    console.log('received posts')
-    console.log(channle);
-    console.log(receivedData);
+    //console.log()('received posts')
+    //console.log()(channle);
+    //console.log()(receivedData);
 
     return {
         type: TYPE_RECEIVED_POSTS,

@@ -1,7 +1,15 @@
-import React, { Component, PropTypes } from 'react'
-import { View, Text, Button, Alert, ListView } from 'react-native';
-import { connect } from 'react-redux'
-import * as actions from '../actions'
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
+import Page2 from './Page2';
+
+import AppHeader from '../components/AppHeader';
+
+const {
+    View, Text, Button, Alert, ListView
+} = ReactNative;
+
 
 class App extends Component {
     constructor(props) {
@@ -10,7 +18,7 @@ class App extends Component {
         this.state = {
             dataSource: ds
         };
-        // this.onPressEvent = this.onPressEvent.bind(this);
+        // this._onPressEvent = this._onPressEvent.bind(this);
     }
 
     componentDidMount() {
@@ -19,9 +27,6 @@ class App extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log('next props');
-        console.log(nextProps);
-
         const { dispatch, currentChannel } = nextProps;
         if (this.props.currentChannel !== currentChannel) {
             dispatch(actions.fetchPosts(currentChannel));
@@ -36,7 +41,7 @@ class App extends Component {
 
     }
 
-    onPressEvent(channel) {
+    _onPressEvent(channel) {
         this.props.dispatch(actions.selectChannel(channel))
     }
 
@@ -50,21 +55,39 @@ class App extends Component {
         };
     }
 
+    _pressBackBtn() {
+        const { navigator } = this.props;
+        if (navigator) {
+            navigator.push({
+                name: 'Page2',
+                component: Page2
+            })
+        }
+    }
+
     render() {
         const { currentChannel } = this.props;
         let i = 0;
-        let channelArray = ['reactjs', 'javascript', 'php', 'python'];
+        let channelArray = ['reactjs', 'nodejs', 'jquery', 'python'];
         return (
             <View>
+                <AppHeader/>
                 <View style={styles.buttonView}>
+                    <Button
+                        onPress={this._pressBackBtn.bind(this)}
+                        title='<Back'
+                    />
                     {
                         channelArray.map(
                             _channel => (
-                                <View key={_channel} style={{flex: 1 / channelArray.length}}>
+                                <View key={_channel} >
                                     <Button
-                                        onPress={() => this.onPressEvent(_channel)}
+                                        onPress={() => this._onPressEvent(_channel)}
                                         title={_channel}
-                                        color={i++ % 2 === 0 ? styles.button.color : styles.button2.color}
+                                        color={
+                                                _channel === currentChannel ? styles.selectedBtn.color :
+                                                    (i++ % 2 === 0 ? styles.button.color : styles.button2.color)
+                                        }
                                     />
                                 </View>)
                         )
@@ -93,14 +116,16 @@ class App extends Component {
 const styles = {
     buttonView: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     button: {
-        // flex: 0.5
-        color: 'rgb(193, 235, 78)'
+        color: 'darkgreen'
     },
     button2: {
-        color: 'blue'
+        color: 'darkblue'
+    },
+    selectedBtn: {
+        color: 'red'
     },
     channelTitle: {
         fontSize: 30
@@ -115,8 +140,8 @@ App.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-    console.log('map state to props');
-    console.log(state);
+    //console.log()('map state to props');
+    //console.log()(state);
     return {
         currentChannel: state.currentChannel,
         lists: typeof state.posts[state.currentChannel] !== 'undefined' ? state.posts[state.currentChannel]['items'] : []
