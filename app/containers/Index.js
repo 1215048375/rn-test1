@@ -7,7 +7,7 @@ import { NaviGoBack } from '../utils/Tools'
 const { Navigator, StatusBar, View } = ReactNative;
 
 
-export default class Playground extends React.Component {
+export default class Index extends React.Component {
     constructor(props) {
         super(props);
 

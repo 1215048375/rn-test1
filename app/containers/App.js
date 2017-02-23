@@ -2,12 +2,12 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import Page2 from './Page2';
+import WebPage from '../pages/WebPage';
 
 import AppHeader from '../components/AppHeader';
 
 const {
-    View, Text, Button, Alert, ListView
+    View, Text, Button, Alert, ListView, TouchableHighlight, Image
 } = ReactNative;
 
 
@@ -55,28 +55,53 @@ class App extends Component {
         };
     }
 
-    _pressBackBtn() {
+    _pressTopic(topicUrl) {
         const { navigator } = this.props;
         if (navigator) {
             navigator.push({
-                name: 'Page2',
-                component: Page2
+                name: 'WebPage',
+                component: WebPage,
+                params: {
+                    url: topicUrl
+                }
             })
         }
+    }
+
+    _renderRow = (rowData, sectionId, rowID) => {
+        if (typeof rowData.data === 'undefined') {
+            return '';
+        }
+
+        let isOdd = (rowID % 2 === 0);
+
+        console.log(rowData);
+
+        return (
+            <TouchableHighlight onPress={() => this._pressTopic(rowData.data['url'])}>
+                    <View  style={{...styles.listViewRowBasic, ...(isOdd ? styles.listViewRow2 : styles.listViewRow)}}>
+                        <View style={{flexDirection:'row'}}>
+                            <Image
+                                style={{height:60, width:60, padding:10}}
+                                source={{uri: (rowData.data['thumbnail'].length > 0 && rowData.data['thumbnail'] !== 'self' && rowData.data['thumbnail'] !== 'default')?
+                                    rowData.data['thumbnail'] :
+                                    "http://b.thumbs.redditmedia.com/ghhfiBCmzzVJr1-mOk-VR-4GzdRruEIfX0evjoSf7tc.jpg"}}
+                            />
+                            <Text style={{color: isOdd? "white" : "black"}}>{rowData.data['title'].substring(0, 120)}</Text>
+                        </View>
+                    </View>
+            </TouchableHighlight>
+        );
     }
 
     render() {
         const { currentChannel } = this.props;
         let i = 0;
-        let channelArray = ['reactjs', 'nodejs', 'jquery', 'python'];
+        let channelArray = ['reactjs', 'ps4', 'jquery', 'python'];
         return (
             <View>
                 <AppHeader/>
                 <View style={styles.buttonView}>
-                    <Button
-                        onPress={this._pressBackBtn.bind(this)}
-                        title='<Back'
-                    />
                     {
                         channelArray.map(
                             _channel => (
@@ -93,19 +118,13 @@ class App extends Component {
                         )
                     }
                 </View>
-                <View>
+                <View style={{borderBottomWidth:1, borderColor:'red'}}>
                     <Text style={styles.channelTitle}>{currentChannel}</Text>
                 </View>
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={(rowData) => {
-                        if (typeof rowData.data === 'undefined') {
-                            return '';
-                        }
-                        return (
-                            <Text>{rowData.data['title']}</Text>
-                        );
-                    }}
+                    initialListSize={5}
+                    renderRow={this._renderRow}
                     enableEmptySections={true}
                 />
             </View>
@@ -116,7 +135,7 @@ class App extends Component {
 const styles = {
     buttonView: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
     },
     button: {
         color: 'darkgreen'
@@ -128,7 +147,20 @@ const styles = {
         color: 'red'
     },
     channelTitle: {
-        fontSize: 30
+        fontSize: 30,
+        color: 'red'
+    },
+    listViewRowBasic: {
+        height:100,
+        padding:10,
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    listViewRow: {
+        backgroundColor: 'white',
+    },
+    listViewRow2: {
+        backgroundColor: 'red',
     }
 };
 
