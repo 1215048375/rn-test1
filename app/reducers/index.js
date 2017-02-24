@@ -1,21 +1,53 @@
 import { combineReducers } from 'redux';
-import * as actionType from '../actions'
+import * as actionType from '../actions';
+
+
+function post() {
+
+}
 
 export function posts(state = {}, action) {
+    //console.log('action');
+    //console.log(action);
+    let returnVal = {};
     switch(action.type) {
         case actionType.TYPE_RECEIVED_POSTS:
-            if (typeof state[action.channel] !== 'undefined' && state[action.channel]['items'].length > 0) {
-                return state
-            } else {
-                return  {
+            // if (typeof state[action.channel] !== 'undefined'
+            //     && state[action.channel]['items'].length > 0
+            // ) {
+            //     //cache的列表
+            //     return state;
+            // } else {
+                returnVal = {
                     ...state,
                     [action.channel] : {
+                        ...state[action.channel],
                         items: action.receivedData.data.children,
+                        after: action.receivedData.data.after,
                         isFetching: false,
-                        lastUpdatedAt: Date.now()
+                        lastUpdatedAt: Date.now(),
                     }
                 };
-            }
+
+                //console.log('returnval');
+                //console.log(returnVal);
+
+                return returnVal;
+            // }
+        case actionType.TYPE_GET_NEXT_PAGE:
+                returnVal = {
+                    ...state,
+                    [action.channel] : {
+                        ...state[action.channel],
+                        currentPage:
+                            (typeof state[action.channel] !== 'undefined' &&
+                            typeof state[action.channel]['after'] !== 'undefined' )?
+                            state[action.channel]['after'] : ''
+                    }
+                };
+                //console.log('type-get returnval');
+                //console.log(returnVal);
+                return returnVal;
         default:
             return state;
 

@@ -14,31 +14,48 @@ const {
 class App extends Component {
     constructor(props) {
         super(props)
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            dataSource: ds
+            newLists: {}
         };
         // this._onPressEvent = this._onPressEvent.bind(this);
     }
 
     componentDidMount() {
-        const { dispatch, currentChannel } = this.props;
+        const { dispatch, currentChannel} = this.props;
         dispatch(actions.fetchPosts(currentChannel));
     }
 
     componentWillReceiveProps(nextProps) {
-        const { dispatch, currentChannel } = nextProps;
+        const { dispatch, currentChannel, currentPage } = nextProps;
+        //console.log(currentPage);
         if (this.props.currentChannel !== currentChannel) {
             dispatch(actions.fetchPosts(currentChannel));
         }
 
-        if (this.props.lists !== nextProps.lists) {
-            let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-            this.setState({
-                dataSource: ds.cloneWithRows(nextProps.lists),
-            });
+        if (this.props.currentPage !== currentPage) {
+            dispatch(actions.fetchPosts(currentChannel, currentPage))
         }
 
+        if (this.props.lists !== nextProps.lists) {
+            if (typeof this.ds === 'undefined') {
+                this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            }
+
+            if (typeof this.state.newLists[currentChannel] === 'undefined') {
+
+            }
+
+            newLists = (typeof this.state.newLists[currentChannel] !== 'undefined' ? this.state.newLists[currentChannel] : []).concat(nextProps.lists);
+            this.setState({
+                newLists: {
+                    ...this.state.newLists,
+                    [currentChannel]: newLists
+                },
+                dataSource: this.ds.cloneWithRows(newLists),
+            });
+
+        }
     }
 
     _onPressEvent(channel) {
@@ -51,7 +68,8 @@ class App extends Component {
                 Alert.alert("hello")
             },
             currentChannel: 'reactjs',
-            lists: []
+            lists: [],
+            currentPage: ''
         };
     }
 
@@ -68,6 +86,13 @@ class App extends Component {
         }
     }
 
+    _onEndReached() {
+        const { currentChannel } = this.props;
+        //console.log('reached end');
+        //console.log(currentChannel);
+        this.props.dispatch(actions.getNextPage(currentChannel));
+    }
+
     _renderRow = (rowData, sectionId, rowID) => {
         if (typeof rowData.data === 'undefined') {
             return '';
@@ -75,7 +100,7 @@ class App extends Component {
 
         let isOdd = (rowID % 2 === 0);
 
-        console.log(rowData);
+        //console.log(rowData);
 
         return (
             <TouchableHighlight onPress={() => this._pressTopic(rowData.data['url'])}>
@@ -83,9 +108,15 @@ class App extends Component {
                         <View style={{flexDirection:'row'}}>
                             <Image
                                 style={{height:60, width:60, padding:10}}
-                                source={{uri: (rowData.data['thumbnail'].length > 0 && rowData.data['thumbnail'] !== 'self' && rowData.data['thumbnail'] !== 'default')?
-                                    rowData.data['thumbnail'] :
-                                    "http://b.thumbs.redditmedia.com/ghhfiBCmzzVJr1-mOk-VR-4GzdRruEIfX0evjoSf7tc.jpg"}}
+                                source={{
+                                    uri: (
+                                    rowData.data['thumbnail'].length > 0 &&
+                                    rowData.data['thumbnail'] !== 'self' &&
+                                    rowData.data['thumbnail'] !== 'default')
+                                        ?
+                                        rowData.data['thumbnail'] :
+                                        "http://b.thumbs.redditmedia.com/ghhfiBCmzzVJr1-mOk-VR-4GzdRruEIfX0evjoSf7tc.jpg"
+                                }}
                             />
                             <Text style={{color: isOdd? "white" : "black"}}>{rowData.data['title'].substring(0, 120)}</Text>
                         </View>
@@ -101,6 +132,7 @@ class App extends Component {
         return (
             <View>
                 <AppHeader/>
+
                 <View style={styles.buttonView}>
                     {
                         channelArray.map(
@@ -121,12 +153,21 @@ class App extends Component {
                 <View style={{borderBottomWidth:1, borderColor:'red'}}>
                     <Text style={styles.channelTitle}>{currentChannel}</Text>
                 </View>
-                <ListView
-                    dataSource={this.state.dataSource}
-                    initialListSize={5}
-                    renderRow={this._renderRow}
-                    enableEmptySections={true}
-                />
+                {typeof this.state.dataSource === 'undefined' &&
+                    <Text>Loading</Text>
+                }
+                {typeof this.state.dataSource != 'undefined' &&
+                    <ListView
+                        dataSource={this.state.dataSource}
+                        onEndReached={this._onEndReached.bind(this)}
+                        onEndReachedThreshold={1}
+                        initialListSize={1}
+                        scrollRenderAheadDistance={100}
+                        renderRow={this._renderRow}
+                        enableEmptySections={true}
+                        reach
+                    />
+                }
             </View>
         );
     }
@@ -168,15 +209,17 @@ App.propTypes = {
     onPressEvent: PropTypes.func,
     currentChannel: PropTypes.string,
     lists: PropTypes.array,
+    currentPage: PropTypes.string,
     dispatch: PropTypes.func
 };
 
 const mapStateToProps = (state) => {
-    //console.log()('map state to props');
-    //console.log()(state);
+    ////console.log()('map state to props');
+    ////console.log()(state);
     return {
         currentChannel: state.currentChannel,
-        lists: typeof state.posts[state.currentChannel] !== 'undefined' ? state.posts[state.currentChannel]['items'] : []
+        lists: typeof state.posts[state.currentChannel] !== 'undefined' ? state.posts[state.currentChannel]['items'] : [],
+        currentPage: typeof state.posts[state.currentChannel] !== 'undefined' ? state.posts[state.currentChannel]['currentPage'] : '',
     }
 };
 
