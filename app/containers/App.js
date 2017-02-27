@@ -146,7 +146,8 @@ class App extends Component {
                     {
                         channelArray.map(
                             _channel => (
-                                <View key={_channel} >
+                                <View key={_channel}  style={styles.bottonBasic}>
+
                                     <Button
                                         onPress={() => this._onPressEvent(_channel)}
                                         title={_channel}
@@ -186,6 +187,9 @@ class App extends Component {
 }
 
 const styles = {
+    bottonBasic: {
+        marginLeft: 2
+    },
     mainBox: {
         flex: 1
     },
@@ -206,6 +210,7 @@ const styles = {
     buttonView: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        marginTop: 2,
     },
     button: {
         height: 50,
