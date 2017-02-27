@@ -3,7 +3,8 @@ export const TYPE_RECEIVED_POSTS = 'TYPE_RECEIVED_POSTS';
 export const TYPE_SELECT_CHANNEL = 'TYPE_SELECT_CHANNEL';
 export const TYPE_GET_NEXT_PAGE = 'TYPE_GET_NEXT_PAGE';
 
-export function fetchPosts(channel, after='', limit=10) {
+
+export function fetchPosts(channel, after='', limit=12) {
     return function(dispatch) {
         let url = 'https://www.reddit.com/r/' + channel + '.json?limit=' + limit;
         if (after.length > 0) {

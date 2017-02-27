@@ -7,7 +7,7 @@ import WebPage from '../pages/WebPage';
 import AppHeader from '../components/AppHeader';
 
 const {
-    View, Text, Button, Alert, ListView, TouchableHighlight, Image
+    View, Text, Button, Alert, ListView, TouchableHighlight, Image, ActivityIndicator
 } = ReactNative;
 
 
@@ -16,7 +16,8 @@ class App extends Component {
         super(props)
         // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            newLists: {}
+            newLists: {},
+            isLoadingNextPage: false,
         };
         // this._onPressEvent = this._onPressEvent.bind(this);
     }
@@ -29,18 +30,29 @@ class App extends Component {
     componentWillReceiveProps(nextProps) {
         const { dispatch, currentChannel, currentPage } = nextProps;
         //console.log(currentPage);
+
+        //fetching
         if (this.props.currentChannel !== currentChannel) {
             dispatch(actions.fetchPosts(currentChannel));
         }
 
+        //fetching
         if (this.props.currentPage !== currentPage) {
+            this.setState({
+                isLoadingNextPage: true
+            });
             dispatch(actions.fetchPosts(currentChannel, currentPage))
         }
 
+        //received
         if (this.props.lists !== nextProps.lists) {
             if (typeof this.ds === 'undefined') {
                 this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
             }
+
+            this.setState({
+                isLoadingNextPage: false
+            })
 
             newLists = (typeof this.state.newLists[currentChannel] !== 'undefined' ? this.state.newLists[currentChannel] : []).concat(nextProps.lists);
             this.setState({
@@ -98,12 +110,13 @@ class App extends Component {
 
         //console.log(rowData);
 
+        // "http://b.thumbs.redditmedia.com/ghhfiBCmzzVJr1-mOk-VR-4GzdRruEIfX0evjoSf7tc.jpg"
         return (
             <TouchableHighlight onPress={() => this._pressTopic(rowData.data['url'])}>
                     <View  style={{...styles.listViewRowBasic, ...(isOdd ? styles.listViewRow2 : styles.listViewRow)}}>
                         <View style={{flexDirection:'row'}}>
                             <Image
-                                style={{height:60, width:60, padding:10}}
+                                style={{height:60, width:60, padding:10, borderRadius: 6}}
                                 source={{
                                     uri: (
                                     rowData.data['thumbnail'].length > 0 &&
@@ -111,10 +124,10 @@ class App extends Component {
                                     rowData.data['thumbnail'] !== 'default')
                                         ?
                                         rowData.data['thumbnail'] :
-                                        "http://b.thumbs.redditmedia.com/ghhfiBCmzzVJr1-mOk-VR-4GzdRruEIfX0evjoSf7tc.jpg"
+                                        "https://b.thumbs.redditmedia.com/RRZjnHa7_MlybocErA_i6KSy8tnANr3ajZwCGCQ9JCc.jpg"
                                 }}
                             />
-                            <Text style={{color: isOdd? "white" : "black"}}>{rowData.data['title'].substring(0, 120)}</Text>
+                            <Text style={{color: isOdd? "white" : "black", marginLeft: 10}}>{rowData.data['title'].substring(0, 120)}</Text>
                         </View>
                     </View>
             </TouchableHighlight>
@@ -124,9 +137,9 @@ class App extends Component {
     render() {
         const { currentChannel } = this.props;
         let i = 0;
-        let channelArray = ['reactjs', 'ps4', 'jquery', 'python'];
+        let channelArray = ['reactjs', 'php', 'wiiu', 'xboxone', 'ps4'];
         return (
-            <View>
+            <View style={styles.mainBox}>
                 <AppHeader/>
 
                 <View style={styles.buttonView}>
@@ -146,7 +159,7 @@ class App extends Component {
                         )
                     }
                 </View>
-                <View style={{borderBottomWidth:1, borderColor:'red'}}>
+                <View style={{borderBottomWidth:1, borderColor:'red', flexDirection:'row', justifyContent:'center'}}>
                     <Text style={styles.channelTitle}>{currentChannel}</Text>
                 </View>
                 {typeof this.state.dataSource === 'undefined' &&
@@ -158,29 +171,52 @@ class App extends Component {
                         onEndReached={this._onEndReached.bind(this)}
                         onEndReachedThreshold={1}
                         initialListSize={1}
-                        scrollRenderAheadDistance={100}
                         renderRow={this._renderRow}
                         enableEmptySections={true}
-                        reach
                     />
                 }
+                {this.state.isLoadingNextPage &&
+                    <View style={styles.isLoadingView}><Text style={styles.loadingText}>Loading...</Text></View>
+                }
+                {/*scrollRenderAheadDistance={100}*/}
+                {/*<ActivityIndicator style={{backgroundColor: 'red', height: 40}}/>*/}
             </View>
         );
     }
 }
 
 const styles = {
+    mainBox: {
+        flex: 1
+    },
+    isLoadingView: {
+        position: 'absolute',
+        height: 20,
+        left:0,
+        right:0,
+        bottom:0,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        backgroundColor: 'blue',
+    },
+    loadingText: {
+        color : 'white',
+        fontWeight: 'bold'
+    },
     buttonView: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
     },
     button: {
+        height: 50,
         color: 'darkgreen'
     },
     button2: {
+        height: 50,
         color: 'darkblue'
     },
     selectedBtn: {
+        height: 50,
         color: 'red'
     },
     channelTitle: {
