@@ -42,10 +42,6 @@ class App extends Component {
                 this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
             }
 
-            if (typeof this.state.newLists[currentChannel] === 'undefined') {
-
-            }
-
             newLists = (typeof this.state.newLists[currentChannel] !== 'undefined' ? this.state.newLists[currentChannel] : []).concat(nextProps.lists);
             this.setState({
                 newLists: {
