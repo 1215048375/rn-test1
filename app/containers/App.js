@@ -114,20 +114,22 @@ class App extends Component {
         return (
             <TouchableHighlight onPress={() => this._pressTopic(rowData.data['url'])}>
                     <View  style={{...styles.listViewRowBasic, ...(isOdd ? styles.listViewRow2 : styles.listViewRow)}}>
-                        <View style={{flexDirection:'row'}}>
-                            <Image
-                                style={{height:60, width:60, padding:10, borderRadius: 6}}
-                                source={{
-                                    uri: (
-                                    rowData.data['thumbnail'].length > 0 &&
-                                    rowData.data['thumbnail'] !== 'self' &&
-                                    rowData.data['thumbnail'] !== 'default')
-                                        ?
-                                        rowData.data['thumbnail'] :
-                                        "https://b.thumbs.redditmedia.com/RRZjnHa7_MlybocErA_i6KSy8tnANr3ajZwCGCQ9JCc.jpg"
-                                }}
-                            />
-                            <Text style={{color: isOdd? "white" : "black", marginLeft: 10}}>{rowData.data['title'].substring(0, 120)}</Text>
+                        <View style={{flexDirection:'row', flex:1, flexWrap:'wrap', alignItems:'center'}}>
+                            <View>
+                                <Image
+                                    style={{height:60, width:60, padding:10, borderRadius: 6 }}
+                                    source={{
+                                        uri: (
+                                        rowData.data['thumbnail'].length > 0 &&
+                                        rowData.data['thumbnail'] !== 'self' &&
+                                        rowData.data['thumbnail'] !== 'default')
+                                            ?
+                                            rowData.data['thumbnail'] :
+                                            "https://b.thumbs.redditmedia.com/RRZjnHa7_MlybocErA_i6KSy8tnANr3ajZwCGCQ9JCc.jpg"
+                                    }}
+                                />
+                            </View>
+                            <Text style={{color: isOdd? "white" : "black", marginLeft: 10, flex:.8, paddingRight:10}}>{rowData.data['title'].substring(0, 100)}</Text>
                         </View>
                     </View>
             </TouchableHighlight>
@@ -233,6 +235,7 @@ const styles = {
         padding:10,
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems:'center'
     },
     listViewRow: {
         backgroundColor: 'white',
