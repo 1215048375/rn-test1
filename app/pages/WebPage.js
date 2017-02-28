@@ -47,7 +47,6 @@ export default class WebPage extends React.Component {
                         domStorageEnabled={true}
                         startInLoadingState={true}
                         decelerationRate="normal"
-                        onShouldStartLoadWithRequest={true}
                     />
                 }
             </View>
