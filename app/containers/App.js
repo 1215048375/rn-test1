@@ -142,7 +142,7 @@ class App extends Component {
         let channelArray = ['reactjs', 'php', 'wiiu', 'xboxone', 'ps4'];
         return (
             <View style={styles.mainBox}>
-                <AppHeader/>
+                <AppHeader currentChannel={currentChannel}/>
 
                 <View style={styles.buttonView}>
                     {
@@ -162,11 +162,8 @@ class App extends Component {
                         )
                     }
                 </View>
-                <View style={{borderBottomWidth:1, borderColor:'red', flexDirection:'row', justifyContent:'center'}}>
-                    <Text style={styles.channelTitle}>{currentChannel}</Text>
-                </View>
-                {typeof this.state.dataSource === 'undefined' &&
-                    <Text>Loading</Text>
+                {typeof this.state.newLists[currentChannel] === 'undefined' &&
+                    <Text>Loading...</Text>
                 }
                 {typeof this.state.dataSource != 'undefined' &&
                     <ListView
@@ -213,6 +210,7 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         marginTop: 2,
+        marginBottom: 2,
     },
     button: {
         height: 50,
